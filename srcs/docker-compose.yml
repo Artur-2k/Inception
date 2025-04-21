@@ -1,0 +1,30 @@
+version: '3.8' # Docker Compose file format version
+
+services: 
+  # MariaDB Service
+  mariadb:
+    build:
+      context: ./requirements/mariadb       # Location of Dockerfile and related files
+      dockerfile: Dockerfile                # Name of Dockerfile to use
+    container_name: mariadb                 # Name of container - so it is not random
+    restart: unless-stopped                 # Container will restart unless stopped
+    volumes:
+      - mariadb_data:/var/lib/mysql         # Mount persistent volume for database files
+    networks:
+      - inception_network                   # Connect to this network
+    environment:
+      MYSQL_DATABASE: wordpress             # Database name
+      MYSQL_USER: regularuser               # Regular database user
+    secrets:                                # Secrets THIS container CAN access
+      -db_root_password                     # For MySQL root password
+      -db_password                          # For MySLQ regular user password
+    expose:
+      - "3306"                              # Expose container port used by mariadb
+
+
+# What the secrets represent
+secrets:
+  db_root_password:                         # MariaDB root password
+    file: ./secrets/db_root_password.txt    
+  db_password:                              # MariaDB database regular user password
+    file: ./secrets/db_password.txt
